@@ -1,0 +1,59 @@
+<title>OLX - Page Not Found</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="robots" content="noindex,follow" />
+<meta name="googlebot" content="noindex,follow" />
+
+<style type="text/css">
+.tit{font-family: arial, helvetica, sans-serif; font-size: 18px; font-style: normal; font-weight: normal; color: #000000; text-decoration: none;}
+.txt01{font-family: arial, helvetica, sans-serif; font-size: 12px; font-style: normal; font-weight: normal; color: #EF6B12; text-decoration: none;}
+.txt01:visited{font-family: arial, helvetica, sans-serif; font-size: 12px; font-style: normal; font-weight: normal; color: #EF6B12; text-decoration: none;}
+.txt01:hover{font-family: arial, helvetica, sans-serif; font-size: 12px; font-style: normal; font-weight: normal; color: #7B278F; text-decoration: none;}
+.txt02{font-family: arial, helvetica, sans-serif; font-size: 12px; font-style: normal; font-weight: normal; color: #000000; text-decoration: none;}
+.body{background-color:#FBFBFB, margin-bottom:0, margin-right:0, margin-top:0, margin-left:0;}
+</style>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="140"><a href="{{ url.base }}"><img src="{{ makeFileUrl('/images/h_logo2.gif') }}" border="0"></a></td>
+            </tr>
+        </table>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td colspan="2" height="1" background="{{ makeFileUrl('/imagenes/notfound/linea_pts.gif') }}"><img src="{{ makeFileUrl('/imagenes/notfound/tp.gif') }}" border="0" height="1"></td>
+            </tr>
+            <tr>
+                <td width="20"><img src="{{ makeFileUrl('/imagenes/notfound/tp.gif') }}" border="0" height="1"></td>
+                <td height="48"><font class="tit">{{ trans('defaulthtmlhead.SorryThePageYouAreLookingForIsNotAvailable') }}</font></td>
+            </tr>
+            <tr>
+                <td colspan="2" height="1" background="{{ makeFileUrl('/imagenes/notfound/linea_pts.gif') }}"><img src="{{ makeFileUrl('/imagenes/notfound/tp.gif') }}" border="0" height="1"></td>
+            </tr>
+        </table>
+        <table width="780" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td width="20"><img src="{{ makeFileUrl('/imagenes/notfound/tp.gif') }}" border="0" height="1"></td>
+                <td colspan="2"><font class="txt01"><strong><br>{{ trans('defaulthtmlhead.PleaseTryOneOfTheFollowingOptions') }}</strong><br><br></font></td>
+            </tr>
+            <tr>
+                <td width="20" rowspan="7"><img src="{{ makeFileUrl('/imagenes/notfound/tp.gif') }}" border="0" height="1"></td>
+                <td width="20" valign="top"><img src="{{ makeFileUrl('/imagenes/notfound/bulletnarch.gif') }}" border="0"></td>
+                <td width="740"><font class="txt02">{{ trans('defaulthtmlhead.MakeSureTheWebAddressYouEnteredIsCorrect') }}</font></td>
+            </tr>
+            <tr><td colspan="3"><img src="{{ makeFileUrl('/imagenes/notfound/tp.gif') }}" border="0" height="4"></td></tr>
+            <tr>
+                <td width="20" valign="top"><img src="{{ makeFileUrl('/imagenes/notfound/bulletnarch.gif') }}" border="0"></td>
+                <td width="740"><a href="javascript:history.go(-1);" class="txt01"><u><strong>{{ trans('defaulthtmlhead.GoBackToThePreviousPage') }}</strong></u></a></td>
+            </tr>
+            <tr><td colspan="3"><img src="{{ makeFileUrl('/imagenes/notfound/tp.gif') }}" border="0" height="4"></td></tr>
+            <tr>
+                <td width="20" valign="top"><img src="{{ makeFileUrl('/imagenes/notfound/bulletnarch.gif') }}" border="0"></td>
+                {% set accessToHomePage = trans("defaulthtmlhead.TryToAccessThePageDirectlyFromTheBrandHomePage",
+                    {
+                        "<<LINK_HOME_PAGE>>": "<a href=" ~ url.base ~ ">",
+                        "<</LINK_HOME_PAGE>>": "</a>"
+                    })
+                %}
+                <td width="740"><font class="txt02">{{ accessToHomePage }}</font></td>
+            </tr>
+            <tr><td colspan="3"><img src="{{ makeFileUrl('/imagenes/notfound/tp.gif') }}" border="0" height="30" width="1"></td></tr>
+        </table>

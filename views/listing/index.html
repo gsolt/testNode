@@ -1,0 +1,14 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in model.results.docs %}
+        <tr>
+            <td><a href="/{{ item.title }}-iid-{{ item.id }}">{{ item.title }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

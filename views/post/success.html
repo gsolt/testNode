@@ -1,0 +1,13 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{ model.title }}</h3>
+    </div>
+    <div class="panel-body">
+        <b>Description:</b> {{ model.description }}
+        <br />
+        <b>Files:</b><br/>
+        {% for file in model.files %}
+            {{ file.name }}<br />
+        {% endfor %}
+    </div>
+</div>
