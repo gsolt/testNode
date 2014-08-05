@@ -7,13 +7,14 @@ var session      = require('cookie-session')
 var bodyParser   = require('body-parser');
 var routes       = require('./routes/index');
 var nunjucks     = require('nunjucks');
+var crypto       = require('crypto');
 var app          = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 nunjucks.configure('views', {
-  autoescape: true,
-  express   : app
+    autoescape: true,
+    express   : app
 });
 
 // app setup
@@ -25,9 +26,17 @@ app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-  keys: ['23lrñk23ñlkr23lñ2r3', 'l23kl3kñGG$gwewe2'],
-  secureProxy: false // if you do SSL outside of node
+    keys: ['Esto es una key que no se deberia saber_'],
+    secureProxy: false // if you do SSL outside of node
 }))
+app.use(function (request, response, next) {
+    if ( ! request.session.id) {
+        var sha = crypto.createHash('md5');
+        sha.update(Math.random().toString());
+        request.session.id = sha.digest('hex');
+    }
+    next();
+})
 
 // All to routes
 app.use('/', routes);

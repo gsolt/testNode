@@ -56,21 +56,22 @@ module.exports = function () {
         this.deleteType = 'DELETE';
     };
 
-    FileInfo.prototype.safeName = function () {
+    FileInfo.prototype.safeName = function (request) {
+        var extention = this.name.split('.').pop();
+
+        var random = Math.floor(Math.random() * (1000000000000));
+        this.name  = request.session.id + '_' + random + '.' + extention;
+
         // Prevent directory traversal and creating hidden system files:
         this.name = path.basename(this.name).replace(/^\.+/, '');
-        // Prevent overwriting existing files:
-        while (_existsSync(options.uploadDir + '/' + this.name)) {
-            this.name = this.name.replace(nameCountRegexp, nameCountFunc);
-        }
     };
 
-    FileInfo.prototype.initUrls = function (req, sss) {
+    FileInfo.prototype.initUrls = function (request, sss) {
         if ( ! this.error) {
             var that = this;
             if( ! sss) {
                 var baseUrl = (options.useSSL ? 'https:' : 'http:') +
-                    '//' + req.headers.host + options.uploadUrl;
+                    '//' + request.headers.host + options.uploadUrl;
                 that.url =  baseUrl + encodeURIComponent(that.name);
                 that.deleteUrl = baseUrl +encodeURIComponent(that.name);
                 Object.keys(options.imageVersions).forEach(function (version) {
@@ -104,16 +105,16 @@ module.exports = function () {
         return !this.error;
     };
 
-    var setNoCacheHeaders = function (res) {
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-        res.setHeader('Content-Disposition', 'inline; filename="files.json"');
+    var setNoCacheHeaders = function (response) {
+        response.setHeader('Pragma', 'no-cache');
+        response.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+        response.setHeader('Content-Disposition', 'inline; filename="files.json"');
     }
 
     var fileUploader = {};
 
-    fileUploader.get = function (req, res, callback) {
-        setNoCacheHeaders(res);
+    fileUploader.get = function (request, response, callback) {
+        setNoCacheHeaders(response);
         var files = [];
         fs.readdir(options.uploadDir, function (err, list) {
             list.forEach(function (name) {
@@ -124,7 +125,7 @@ module.exports = function () {
                         name: name,
                         size: stats.size
                     });
-                    fileInfo.initUrls(req);
+                    fileInfo.initUrls(request);
                     files.push(fileInfo);
                 }
             });
@@ -134,8 +135,8 @@ module.exports = function () {
         });
     };
 
-    fileUploader.post = function (req, res, callback) {
-        setNoCacheHeaders(res);
+    fileUploader.post = function (request, response, callback) {
+        setNoCacheHeaders(response);
         var form = new formidable.IncomingForm(),
             tmpFiles = [],
             files = [],
@@ -146,7 +147,7 @@ module.exports = function () {
                 counter -= 1;
                 if ( ! counter) {
                     files.forEach(function (fileInfo) {
-                        fileInfo.initUrls(req, sss);
+                        fileInfo.initUrls(request, sss);
                     });
                     callback({
                         files: files
@@ -158,8 +159,8 @@ module.exports = function () {
 
         form.on('fileBegin', function (name, file) {
             tmpFiles.push(file.path);
-            var fileInfo = new FileInfo(file, req, true);
-            fileInfo.safeName();
+            var fileInfo = new FileInfo(file, request, true);
+            fileInfo.safeName(request);
             map[path.basename(file.path)] = fileInfo;
             files.push(fileInfo);
         }).on('field', function (name, value) {
@@ -199,29 +200,34 @@ module.exports = function () {
             console.log(e);
         }).on('progress', function (bytesReceived) {
             if (bytesReceived > options.maxPostSize) {
-                req.connection.destroy();
+                request.connection.destroy();
             }
         }).on('end', function(){
             finish();
-        }).parse(req);
+        }).parse(request);
     };
 
-    fileUploader.delete = function (req, res, callback) {
+    fileUploader.delete = function (request, response, callback) {
         var fileName;
-        if (req.url.slice(0, options.uploadUrl.length) === options.uploadUrl) {
-            fileName = path.basename(decodeURIComponent(req.url));
+        if (request.url.slice(0, options.uploadUrl.length) === options.uploadUrl) {
+            fileName = path.basename(decodeURIComponent(request.url));
             if (fileName[0] !== '.') {
-                fs.unlink(options.uploadDir + '/' + fileName, function (ex) {
-                    Object.keys(options.imageVersions).forEach(function (version) {
-                        fs.unlink(options.uploadDir + '/' + version + '/' + fileName, function (err) {
-                            //if (err) throw err;
+                // Check the session
+                var regExp = /(.*)_([\d]+)\.([\w]+)$/;
+                var values = regExp.exec(fileName);
+                if (values[1] == request.session.id) {
+                    fs.unlink(options.uploadDir + '/' + fileName, function (ex) {
+                        Object.keys(options.imageVersions).forEach(function (version) {
+                            fs.unlink(options.uploadDir + '/' + version + '/' + fileName, function (err) {
+                                //if (err) throw err;
+                            });
+                        });
+                        callback({
+                            success: !ex
                         });
                     });
-                    callback({
-                        success: !ex
-                    });
-                });
-                return;
+                    return;
+                }
             }
         }
         callback({
